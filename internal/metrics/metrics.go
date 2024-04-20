@@ -54,8 +54,13 @@ func recordBalance(account string, client client.StarlingClient) {
 	balanceGauge.WithLabelValues(account, "pending").Set(float64(balance.PendingTransations.MinorUnits) / 100.0)
 }
 
+func startOfMonth() time.Time {
+	today := time.Now().UTC()
+	return today.AddDate(0, 0, -today.Day()+1)
+}
+
 func recordTransactions(account string, category string, client client.StarlingClient) {
-	feedItems, err := client.FeedItems(account, category, time.Now().UTC().Add(-time.Hour))
+	feedItems, err := client.FeedItems(account, category, startOfMonth())
 	if err != nil {
 		slog.Error(fmt.Sprintf("error getting feed items: %v", err))
 		return
