@@ -3,10 +3,7 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"log/slog"
 	"net/http"
-	"os"
-	"strings"
 	"time"
 
 	"github.com/rornic/starlingexporter/internal/model"
@@ -19,40 +16,21 @@ type StarlingClient interface {
 }
 
 type StarlingHttpClient struct {
-	sandbox     bool
+	endpoint    string
 	httpClient  http.Client
 	accessToken string
 }
 
-func NewStarlingHttpClient() StarlingHttpClient {
-	sandbox := strings.ToLower(os.Getenv("STARLING_SANDBOX")) == "true"
-	if sandbox {
-		slog.Info("using sandbox environment")
-	} else {
-		slog.Info("using production environment")
-	}
-
-	accessToken := os.Getenv("STARLING_ACCESS_TOKEN")
-	if accessToken == "" {
-		slog.Error("STARLING_ACCESS_TOKEN is not set. Exiting.")
-		os.Exit(1)
-	}
-	slog.Info("using access token from environment")
-
+func NewStarlingHttpClient(accessToken string, endpoint string) StarlingHttpClient {
 	return StarlingHttpClient{
-		sandbox:     sandbox,
+		endpoint:    endpoint,
 		httpClient:  http.Client{Timeout: 10 * time.Second},
 		accessToken: accessToken,
 	}
 }
 
 func (starlingClient *StarlingHttpClient) Get(path string) (*http.Response, error) {
-	endpoint := "https://api.starlingbank.com/api/v2"
-	if starlingClient.sandbox {
-		endpoint = strings.Replace(endpoint, "api", "api-sandbox", 1)
-	}
-
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", endpoint, path), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s", starlingClient.endpoint, path), nil)
 	if err != nil {
 		return nil, err
 	}

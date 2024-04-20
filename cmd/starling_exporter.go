@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/rornic/starlingexporter/internal/client"
@@ -14,7 +15,21 @@ func main() {
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	slog.SetDefault(logger)
 
-	client := client.NewStarlingHttpClient()
+	accessToken := os.Getenv("STARLING_ACCESS_TOKEN")
+	if accessToken == "" {
+		slog.Error("STARLING_ACCESS_TOKEN is not set. Exiting.")
+		os.Exit(1)
+	}
+	slog.Info("using access token from environment")
+
+	endpoint := "https://api.starlingbank.com/api/v2"
+	sandbox := strings.ToLower(os.Getenv("STARLING_SANDBOX")) == "true"
+	if sandbox {
+		slog.Info("using sandbox environment")
+		endpoint = strings.Replace(endpoint, "api", "api-sandbox", 1)
+	}
+
+	client := client.NewStarlingHttpClient(accessToken, endpoint)
 	metrics.Record(&client)
 
 	http.Handle("/metrics", promhttp.Handler())
