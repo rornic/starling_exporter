@@ -28,7 +28,7 @@ func Record(client client.StarlingClient) {
 			accounts, err := client.Accounts()
 			if err != nil {
 				slog.Error(fmt.Sprintf("error getting accounts: %v", err))
-				time.Sleep(15 * time.Second)
+				time.Sleep(1 * time.Minute)
 				continue
 			}
 
