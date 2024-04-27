@@ -24,11 +24,12 @@ var (
 
 func Record(client client.StarlingClient) {
 	go func() {
+		scrapeInterval := 5 * time.Minute
 		for {
 			accounts, err := client.Accounts()
 			if err != nil {
 				slog.Error(fmt.Sprintf("error getting accounts: %v", err))
-				time.Sleep(1 * time.Minute)
+				time.Sleep(scrapeInterval)
 				continue
 			}
 
@@ -38,7 +39,7 @@ func Record(client client.StarlingClient) {
 				recordTransactions(accountId, account.DefaultCategory, client)
 			}
 
-			time.Sleep(15 * time.Second)
+			time.Sleep(scrapeInterval)
 		}
 	}()
 }
