@@ -1,6 +1,9 @@
 name: Image
 
-on: [push]
+on:
+  push:
+    branches:
+      - '*'
 
 jobs:
   docker-build:
