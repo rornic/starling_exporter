@@ -1,9 +1,9 @@
-name: Image (Build)
+name: Image
 
 on: [push]
 
 jobs:
-  docker:
+  docker-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
