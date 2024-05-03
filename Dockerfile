@@ -1,10 +1,10 @@
-FROM golang:1.22 as builder
+FROM golang:1.22-alpine as builder
 
 WORKDIR /app
 COPY . .
 
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm GOARM=6 go build -o bin/starling_exporter cmd/starling_exporter.go
+RUN go build -o bin/starling_exporter cmd/starling_exporter.go
 
 FROM scratch
 

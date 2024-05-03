@@ -27,5 +27,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           push: false
+          platforms: linux/amd64,linux/arm64,linux/arm/v6
           context: .
           tags: ${{ steps.meta.outputs.tags }}
